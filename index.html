@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>标签修改器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="login-screen" id="loginScreen">
+      <section class="login-card">
+        <p class="eyebrow">Secure Access</p>
+        <h1>标签修改器登录</h1>
+        <p class="login-copy">请输入账号和密码，登录后才能使用规则管理、批量改名和导出能力。</p>
+
+        <form class="login-form" id="loginForm">
+          <label class="field">
+            <span>账号</span>
+            <input id="loginUsername" type="text" placeholder="请输入账号" autocomplete="username" />
+          </label>
+          <label class="field">
+            <span>密码</span>
+            <input id="loginPassword" type="password" placeholder="请输入密码" autocomplete="current-password" />
+          </label>
+          <p class="login-hint" id="loginHint">仅限已授权人员登录使用。</p>
+          <button class="primary-button login-button" type="submit">登录进入</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="app-frame">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <div class="brand-mark">🍎</div>
+          <div>
+            <p class="brand-title">Tag Editor</p>
+            <p class="brand-subtitle">标签修改工作台</p>
+          </div>
+        </div>
+
+        <nav class="side-nav">
+          <button class="side-link is-active" type="button" data-page="workspace">
+            <span class="side-icon">⌘</span>
+            <span>
+              <strong>标签修改器</strong>
+              <small>Naming Correction</small>
+            </span>
+          </button>
+          <button class="side-link" type="button" data-page="rules">
+            <span class="side-icon">⚙</span>
+            <span>
+              <strong>规则管理</strong>
+              <small>Rule Center</small>
+            </span>
+          </button>
+          <button class="side-link" type="button" data-page="users">
+            <span class="side-icon">🕘</span>
+            <span>
+              <strong>人员管理</strong>
+              <small>User Center</small>
+            </span>
+          </button>
+          <button class="side-link" type="button" data-scroll-target="resultsSection">
+            <span class="side-icon">☰</span>
+            <span>
+              <strong>改名对照</strong>
+              <small>History View</small>
+            </span>
+          </button>
+        </nav>
+
+        <article class="sidebar-tip">
+          <p class="tip-title">小贴士</p>
+          <p>先选规则，再导入内容。规则会自动保存在当前浏览器里。</p>
+        </article>
+      </aside>
+
+      <main class="main-shell" id="workspaceTop">
+        <header class="topbar">
+          <div class="topbar-copy">
+            <p class="eyebrow">Naming Correction Workspace</p>
+            <h1>标签修改器</h1>
+            <p>先存规则，再选规则，最后批量导入旧命名，一次性产出纠正版和改动说明。</p>
+          </div>
+          <div class="topbar-profile">
+            <div class="avatar">童</div>
+            <div>
+              <strong id="currentUserName">未登录</strong>
+              <span id="currentUserRole">当前工作流</span>
+            </div>
+            <button class="secondary-button small-button" id="logoutBtn" type="button">退出登录</button>
+          </div>
+        </header>
+
+        <section class="page-view is-active" id="page-workspace">
+          <section class="hero-panel">
+            <div class="hero-content">
+              <p class="eyebrow">Naming Correction Workspace</p>
+              <h2>标签修改器</h2>
+              <p class="hero-summary">主页面专注批量纠正、结果核对和快速复制；规则管理和人员管理已经拆成独立页面。</p>
+
+              <div class="feature-row">
+                <article class="feature-card">
+                  <div class="feature-icon">✦</div>
+                  <div>
+                    <strong>保存规则</strong>
+                    <span>支持多条规则保存</span>
+                  </div>
+                </article>
+                <article class="feature-card">
+                  <div class="feature-icon">▣</div>
+                  <div>
+                    <strong>批量处理</strong>
+                    <span>支持导入 txt 与粘贴</span>
+                  </div>
+                </article>
+                <article class="feature-card">
+                  <div class="feature-icon">◎</div>
+                  <div>
+                    <strong>智能对比</strong>
+                    <span>清晰展示修改内容</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="dual-grid">
+            <section class="panel input-panel" id="inputSection">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">批量纠正</p>
+                  <h3>导入旧命名</h3>
+                </div>
+                <div class="toolbar-inline">
+                  <label class="field compact-inline">
+                    <span>当前规则</span>
+                    <select id="workspaceProfileSelect"></select>
+                  </label>
+                  <button class="secondary-button small-button" id="workspaceLoadProfileBtn" type="button">切换规则</button>
+                  <label class="file-chip" for="textFileInput">导入 txt</label>
+                  <input id="textFileInput" type="file" accept=".txt,.csv,text/plain" hidden />
+                </div>
+              </div>
+
+              <div class="stats-strip">
+                <article>
+                  <span>输入条数</span>
+                  <strong id="totalCount">0</strong>
+                </article>
+                <article>
+                  <span>已改动</span>
+                  <strong id="changedCount">0</strong>
+                </article>
+                <article>
+                  <span>当前规则</span>
+                  <strong id="activeRuleNameSecondary">默认规则</strong>
+                </article>
+              </div>
+
+              <label class="field">
+                <span>旧命名输入区</span>
+                <textarea id="sourceInput" rows="14" placeholder="每行一条，例如：1376328-【公测动画】【AI动画田园】微信+苹果屋田园生活展示"></textarea>
+              </label>
+
+              <div class="action-row">
+                <button class="primary-button" id="runCorrectionBtn" type="button">生成纠正版</button>
+                <button class="secondary-button" id="loadSampleBtn" type="button">载入示例</button>
+              </div>
+            </section>
+
+            <section class="panel output-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">输出结果</p>
+                  <h3>纠正后清单</h3>
+                </div>
+                <div class="toolbar-inline">
+                  <button class="secondary-button" id="copyOutputBtn" type="button">复制清单</button>
+                  <button class="secondary-button" id="copyReportBtn" type="button">复制对照</button>
+                  <button class="primary-button small" id="exportExcelBtn" type="button">下载 Excel</button>
+                </div>
+              </div>
+
+              <label class="field">
+                <span>新命名结果</span>
+                <textarea id="correctedOutput" rows="14" readonly></textarea>
+              </label>
+            </section>
+          </section>
+
+          <section class="panel results-panel" id="resultsSection">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">改名对照</p>
+                <h3>原名 / 现名 / 改了什么</h3>
+              </div>
+              <span class="mini-badge">红色 = 修改部分</span>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID / 前缀</th>
+                    <th>原名</th>
+                    <th>现名</th>
+                    <th>改了什么</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsBody">
+                  <tr>
+                    <td colspan="4" class="empty-cell">还没有结果，先导入一批旧命名。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="page-view" id="page-rules">
+          <section class="panel standalone-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">Rule Center</p>
+                <h3>规则管理</h3>
+              </div>
+              <button class="primary-button small" id="saveProfileBtn" type="button">新建规则</button>
+            </div>
+
+            <div class="profile-row">
+              <label class="field compact-field">
+                <span>选择规则</span>
+                <select id="profileSelect"></select>
+              </label>
+              <button class="secondary-button" id="loadProfileBtn" type="button">载入规则</button>
+              <button class="secondary-button danger-text" id="deleteProfileBtn" type="button">删除规则</button>
+            </div>
+          </section>
+
+          <section class="panel standalone-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">Rule Editor</p>
+                <h3>规则编辑器</h3>
+              </div>
+              <span class="local-pill">本地持久化</span>
+            </div>
+
+            <div class="drawer-form-grid">
+              <label class="field">
+                <span>规则名称</span>
+                <input id="profileName" type="text" placeholder="例如：童话师-标准标签规则" />
+              </label>
+              <label class="field">
+                <span>未命中占位词</span>
+                <input id="placeholderTag" type="text" placeholder="待修改" />
+              </label>
+              <label class="field">
+                <span>UE兜底标签</span>
+                <input id="ueFallbackTag" type="text" placeholder="UE+待修改" />
+              </label>
+            </div>
+
+            <label class="inline-check">
+              <input id="keepUnknownLevel3" type="checkbox" />
+              <span>第三级未命中时尽量保留原标签</span>
+            </label>
+
+            <div class="rule-columns">
+              <section class="rule-card">
+                <h4>一级标签规则</h4>
+                <label class="field">
+                  <span>允许标签列表</span>
+                  <textarea id="level1Options" rows="8" placeholder="每行一个标签"></textarea>
+                </label>
+                <label class="field">
+                  <span>支持自拟格式</span>
+                  <textarea id="level1Patterns" rows="4" placeholder="每行一个格式前缀，例如：经营+"></textarea>
+                </label>
+              </section>
+
+              <section class="rule-card">
+                <h4>二级标签规则</h4>
+                <label class="field">
+                  <span>允许标签列表</span>
+                  <textarea id="level2Options" rows="8" placeholder="每行一个标签"></textarea>
+                </label>
+                <label class="field">
+                  <span>支持自拟格式</span>
+                  <textarea id="level2Patterns" rows="4" placeholder="每行一个格式前缀，例如：UE+"></textarea>
+                </label>
+              </section>
+
+              <section class="rule-card">
+                <h4>三级标签规则</h4>
+                <label class="field">
+                  <span>允许标签列表</span>
+                  <textarea id="level3Options" rows="8" placeholder="每行一个标签"></textarea>
+                </label>
+                <label class="field">
+                  <span>支持自拟格式</span>
+                  <textarea id="level3Patterns" rows="4" placeholder="每行一个格式前缀，例如：AI真人+"></textarea>
+                </label>
+              </section>
+            </div>
+
+            <label class="field">
+              <span>别名 / 错别字纠正</span>
+              <textarea id="aliasRules" rows="6" placeholder="格式：店铺经营 => 经营店铺"></textarea>
+            </label>
+
+            <div class="action-row">
+              <button class="primary-button small" id="updateProfileBtn" type="button">更新当前规则</button>
+              <button class="secondary-button" id="resetProfileBtn" type="button">恢复默认规则</button>
+            </div>
+          </section>
+        </section>
+
+        <section class="page-view" id="page-users">
+          <section class="panel standalone-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">User Center</p>
+                <h3>人员管理</h3>
+              </div>
+              <span class="local-pill" id="userManagerBadge">管理员</span>
+            </div>
+
+            <form class="user-form" id="userForm">
+              <div class="drawer-form-grid user-grid">
+                <label class="field">
+                  <span>人员姓名</span>
+                  <input id="newUserDisplayName" type="text" placeholder="例如：小王" />
+                </label>
+                <label class="field">
+                  <span>登录账号</span>
+                  <input id="newUsername" type="text" placeholder="例如：xiaowang" />
+                </label>
+                <label class="field">
+                  <span>登录密码</span>
+                  <input id="newUserPassword" type="text" placeholder="请输入默认密码" />
+                </label>
+              </div>
+
+              <div class="profile-row">
+                <label class="inline-check role-check">
+                  <input id="newUserIsAdmin" type="checkbox" />
+                  <span>设为管理员</span>
+                </label>
+                <button class="primary-button small" id="createUserBtn" type="submit">新增人员</button>
+              </div>
+            </form>
+
+            <div class="user-list" id="userList"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
