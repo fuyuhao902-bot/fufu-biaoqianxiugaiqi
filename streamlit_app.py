@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import io
 import json
+import html
 import re
 import uuid
 from dataclasses import dataclass
@@ -357,6 +358,87 @@ def results_dataframe(results: list[CorrectedItem]) -> pd.DataFrame:
     )
 
 
+def render_highlighted_line(raw_line: str, corrected_tags: list[str]) -> str:
+    parsed = parse_line(raw_line)
+    original_tags = parsed["tags"]
+    tag_markup = []
+    for idx in range(3):
+        before = original_tags[idx] if idx < len(original_tags) else "缺失"
+        after = corrected_tags[idx] if idx < len(corrected_tags) else "缺失"
+        css_class = "diff-red" if before != after else "diff-normal"
+        tag_markup.append(f'<span class="{css_class}">【{html.escape(before)}】</span>')
+    return f"{html.escape(parsed['prefix'])}{''.join(tag_markup)}{html.escape(parsed['body'])}"
+
+
+def render_highlighted_corrected_line(item: CorrectedItem) -> str:
+    parsed = parse_line(item.corrected)
+    tag_markup = []
+    for idx in range(3):
+        before = item.original_tags[idx] if idx < len(item.original_tags) else "缺失"
+        after = item.corrected_tags[idx] if idx < len(item.corrected_tags) else "缺失"
+        css_class = "diff-red" if before != after else "diff-normal"
+        tag_markup.append(f'<span class="{css_class}">【{html.escape(after)}】</span>')
+    return f"{html.escape(parsed['prefix'])}{''.join(tag_markup)}{html.escape(parsed['body'])}"
+
+
+def render_results_table(results: list[CorrectedItem]) -> None:
+    rows = []
+    for item in results:
+        rows.append(
+            f"""
+            <tr>
+              <td>{html.escape(item.prefix or "-")}</td>
+              <td>{render_highlighted_line(item.original, item.corrected_tags)}</td>
+              <td>{render_highlighted_corrected_line(item)}</td>
+              <td>{html.escape(item.change_summary)}</td>
+            </tr>
+            """
+        )
+    table_html = f"""
+    <style>
+      .result-table {{
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        background: rgba(255,255,255,0.88);
+        border-radius: 16px;
+        overflow: hidden;
+      }}
+      .result-table th, .result-table td {{
+        border: 1px solid rgba(231, 191, 200, 0.42);
+        padding: 12px;
+        vertical-align: top;
+        text-align: left;
+        line-height: 1.65;
+      }}
+      .result-table th {{
+        background: rgba(255, 241, 245, 0.95);
+      }}
+      .diff-red {{
+        color: #c53b2f;
+        font-weight: 700;
+      }}
+      .diff-normal {{
+        color: #262127;
+      }}
+    </style>
+    <table class="result-table">
+      <thead>
+        <tr>
+          <th>ID/前缀</th>
+          <th>原名</th>
+          <th>现名</th>
+          <th>改了什么</th>
+        </tr>
+      </thead>
+      <tbody>
+        {''.join(rows)}
+      </tbody>
+    </table>
+    """
+    st.markdown(table_html, unsafe_allow_html=True)
+
+
 def export_excel_bytes(results: list[CorrectedItem]) -> bytes:
     df = results_dataframe(results)
     buffer = io.BytesIO()
@@ -466,8 +548,7 @@ def render_workspace(profiles_payload: dict[str, Any]) -> None:
     )
 
     st.subheader("改名对照")
-    df = results_dataframe(results)
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    render_results_table(results)
 
 
 def render_rules_page(profiles_payload: dict[str, Any]) -> None:
@@ -618,7 +699,7 @@ def main() -> None:
 
     if not user:
         render_login(users)
-        st.info("默认管理员账号：admin  密码：Tonghua2026!")
+        st.info("请使用已分配的管理员或成员账号登录。")
         return
 
     render_sidebar(user, profiles_payload)
