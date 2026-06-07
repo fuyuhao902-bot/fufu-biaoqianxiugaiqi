@@ -12,6 +12,7 @@ from typing import Any
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -394,8 +395,14 @@ def render_results_table(results: list[CorrectedItem]) -> None:
             </tr>
             """
         )
+    row_count = max(len(rows), 1)
     table_html = f"""
     <style>
+      body {{
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: transparent;
+      }}
       .result-table {{
         width: 100%;
         border-collapse: collapse;
@@ -436,7 +443,7 @@ def render_results_table(results: list[CorrectedItem]) -> None:
       </tbody>
     </table>
     """
-    st.markdown(table_html, unsafe_allow_html=True)
+    components.html(table_html, height=min(900, 120 + row_count * 72), scrolling=True)
 
 
 def export_excel_bytes(results: list[CorrectedItem]) -> bytes:
